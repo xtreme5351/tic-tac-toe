@@ -1,6 +1,6 @@
 package com.company;
 
-// import java.util.Arrays;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class Main {
@@ -45,33 +45,74 @@ public class Main {
         return new String[][]{{" ", " ", " "}, {" ", " ", " "}, {" ", " ", " "}};
     }
 
-    private String[][] inputUserMove(String[][] board, int playerNo){
+    private boolean validateSpace(String board, String move, String inverse){
+        return !board.equals(move) && !board.equals(inverse);
+    }
+    // I hate this bit, maybe an easier way to do this?
+    private int[] generateLocation(int move){
+        switch(move){
+            case 0 -> {
+                return new int[] {0, 0};
+            }
+            case 1 -> {
+                return new int[] {0, 1};
+            }
+            case 2 -> {
+                return new int[] {0, 2};
+            }
+            case 3 -> {
+                return new int[] {1, 0};
+            }
+            case 4 -> {
+                return new int[] {1, 1};
+            }
+            case 5 -> {
+                return new int[] {1, 2};
+            }
+            case 6 -> {
+                return new int[] {2, 0};
+            }
+            case 7 -> {
+                return new int[] {2, 1};
+            }
+            case 8 -> {
+                return new int[] {2, 2};
+            }
+        }
+        return new int[] {-1, -1};
+    }
+
+    private String[][] inputUserMove(String[][] board, boolean isPlayerOne){
         System.out.println("Enter your move: ");
         int ans = userInp.nextInt();
         String place;
-        if (playerNo == 1){
-            place = "X";
-        } else {
+        String inverse;
+        if (isPlayerOne){
             place = "O";
+            inverse = "X";
+        } else {
+            place = "X";
+            inverse = "O";
         }
-        switch (ans) {
-            case 0 -> board[0][0] = place;
-            case 1 -> board[0][1] = place;
-            case 2 -> board[0][2] = place;
-            case 3 -> board[1][0] = place;
-            case 4 -> board[1][1] = place;
-            case 5 -> board[1][2] = place;
-            case 6 -> board[2][0] = place;
-            case 7 -> board[2][1] = place;
-            case 8 -> board[2][2] = place;
-            default -> System.out.println("=== INVALID MOVE ===");
+        System.out.println(place);
+        int[] location = game.generateLocation(ans);
+        if(!game.validateSpace(board[location[0]][location[1]], place, inverse)){
+            game.printHeader("Space already taken, try again buddy");
+            game.printBoard(game.inputUserMove(board, isPlayerOne));
+            return board;
         }
+        board[location[0]][location[1]] = place;
         return board;
     }
 
     public static void main(String[] args) {
-        String[][] firstBoard = game.inputUserMove(game.startGame(), 1);
-        game.printBoard(firstBoard);
-        game.printBoard(game.inputUserMove(firstBoard, 2));
+        String[][] board = game.startGame();
+        System.out.println(Arrays.deepToString(board));
+        for (int i = 0; i < 5; i++) {
+            System.out.println("Player 1's turn");
+            game.printBoard(game.inputUserMove(board, true));
+            System.out.println("Player 2's turn");
+            game.printBoard(game.inputUserMove(board, false));
+        }
     }
 }
