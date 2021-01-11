@@ -1,12 +1,14 @@
 package com.company;
 
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Scanner;
 
 public class Main {
-    public static final Main game = new Main();
-    public static final Infrastructure setup = new Infrastructure();
-    public static final Scanner userInp = new Scanner(System.in);
+    private static final Main game = new Main();
+    private static final Infrastructure setup = new Infrastructure();
+    private static final Scanner userInp = new Scanner(System.in);
+    private static final Logic gameLogic = new Logic();
 
     public void printBoard(String[][] board){
         for (String[] row: board) {
@@ -39,6 +41,25 @@ public class Main {
         return board;
     }
 
+    public static void main(String[] args) {
+        String[][] board = setup.startGame();
+        for (int i = 0; i < 3; i++) {
+            System.out.println("Player 1's turn");
+            game.printBoard(game.inputUserMove(board, true));
+            System.out.println("Player 2's turn");
+            game.printBoard(game.inputUserMove(board, false));
+            gameLogic.logic(board);
+        }
+        //game.checkColumns(board);
+        //game.checkRows(board);
+        System.out.println(Arrays.deepToString(board));
+    }
+}
+
+class Logic {
+    private static final Logic logic = new Logic();
+    private static final Infrastructure inf= new Infrastructure();
+
     private void discoverPlaces(String[][] board){
         int whiteSpaces = 9;
         for (String[] row : board) {
@@ -49,7 +70,7 @@ public class Main {
             }
         }
         if(whiteSpaces < 2){
-            setup.printHeader("No more places remaining");
+            inf.printHeader("No more places");
             System.exit(0);
         }
     }
@@ -65,17 +86,43 @@ public class Main {
         }
     }
 
-    public static void main(String[] args) {
-        String[][] board = setup.startGame();
-        for (int i = 0; i < 3; i++) {
-            System.out.println("Player 1's turn");
-            game.printBoard(game.inputUserMove(board, true));
-            System.out.println("Player 2's turn");
-            game.printBoard(game.inputUserMove(board, false));
-            game.discoverPlaces(board);
+    private void checkRows(String[][] board){
+        int sameChar = 0;
+        for (int horizontal = 0; horizontal < board[0].length; horizontal++){
+            String token = board[horizontal][0];
+            if(token.equals(board[horizontal][1]) && token.equals(board[horizontal][2]) && !token.equals(" ")){
+                sameChar += 1;
+                System.out.println("Character = " + token + "| Rows Won = " + sameChar);
+            }
         }
-        game.checkColumns(board);
-        System.out.println(Arrays.deepToString(board));
+    }
+
+    private boolean checkDiagonals(String[][] board){
+        String current = board[0][0];
+        int leftCounter = 0;
+        // left downward diagonal
+        for (int i = 0; i < 3; i++){
+            String c = board[i][i];
+            if (c.equals(current)){
+                leftCounter += 1;
+            }
+        }
+        // right upward diagonal
+        int rightCounter = 0;
+        for (int j = 0; j < 3; j ++){
+            if (j == 0){
+                current = board[0][2];
+            }
+            String d = board[j][2 - j];
+            if (d.equals(current)){
+                rightCounter += 1;
+            }
+        }
+        return leftCounter == 3 || rightCounter == 3;
+    }
+
+    public void logic(String[][] gameBoard){
+        boolean[] checked = {false, false, false, false};
     }
 }
 
@@ -86,7 +133,6 @@ class Infrastructure {
 
     public int[] generateLocation(int move){
         switch(move){
-            // STILL HATING THIS ._____.
             case 0 -> {
                 return new int[] {0, 0};
             }
