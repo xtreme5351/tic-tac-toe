@@ -54,15 +54,27 @@ public class Main {
         }
     }
 
+    private void checkColumns(String[][] board){
+        int sameChar = 0;
+        for (int horizontal = 0; horizontal < board[0].length; horizontal++){
+            String token = board[0][horizontal];
+            if(token.equals(board[1][horizontal]) && token.equals(board[2][horizontal]) && !token.equals(" ")){
+                sameChar += 1;
+                System.out.println("Character = " + token + "| Columns Won = " + sameChar);
+            }
+        }
+    }
+
     public static void main(String[] args) {
         String[][] board = setup.startGame();
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 3; i++) {
             System.out.println("Player 1's turn");
             game.printBoard(game.inputUserMove(board, true));
             System.out.println("Player 2's turn");
             game.printBoard(game.inputUserMove(board, false));
             game.discoverPlaces(board);
         }
+        game.checkColumns(board);
         System.out.println(Arrays.deepToString(board));
     }
 }
@@ -73,8 +85,8 @@ class Infrastructure {
     public static final Infrastructure inf = new Infrastructure();
 
     public int[] generateLocation(int move){
-        // I still hate this .____.
         switch(move){
+            // STILL HATING THIS ._____.
             case 0 -> {
                 return new int[] {0, 0};
             }
