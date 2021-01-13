@@ -1,6 +1,5 @@
 package com.company;
 
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Scanner;
 
@@ -41,17 +40,28 @@ public class Main {
         return board;
     }
 
+    private void checkLogic(Object[] logic){
+        boolean player = (boolean) logic[0];
+        String token = (String) logic[1];
+        if(player && token.equals("Draw")){
+            setup.printHeader("ITS A DRAW");
+            System.exit(1);
+        } else if (player && !token.equals(".")){
+            setup.printHeader("PLAYER " + token + " WINS");
+            System.exit(0);
+        }
+    }
+
     public static void main(String[] args) {
         String[][] board = setup.startGame();
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 5; i++) {
             System.out.println("Player 1's turn");
             game.printBoard(game.inputUserMove(board, true));
+            game.checkLogic(gameLogic.performLogic(board));
             System.out.println("Player 2's turn");
             game.printBoard(game.inputUserMove(board, false));
-            gameLogic.logic(board);
+            game.checkLogic(gameLogic.performLogic(board));
         }
-        //game.checkColumns(board);
-        //game.checkRows(board);
         System.out.println(Arrays.deepToString(board));
     }
 }
@@ -60,7 +70,7 @@ class Logic {
     private static final Logic logic = new Logic();
     private static final Infrastructure inf= new Infrastructure();
 
-    private void discoverPlaces(String[][] board){
+    private Object[] discoverPlaces(String[][] board){
         int whiteSpaces = 9;
         for (String[] row : board) {
             for (String element: row){
@@ -71,33 +81,40 @@ class Logic {
         }
         if(whiteSpaces < 2){
             inf.printHeader("No more places");
-            System.exit(0);
+            return new Object[] {true, "Draw"};
         }
+        return new Object[] {false, "."};
     }
 
-    private void checkColumns(String[][] board){
+    private Object[] checkColumns(String[][] board){
         int sameChar = 0;
         for (int horizontal = 0; horizontal < board[0].length; horizontal++){
             String token = board[0][horizontal];
             if(token.equals(board[1][horizontal]) && token.equals(board[2][horizontal]) && !token.equals(" ")){
                 sameChar += 1;
-                System.out.println("Character = " + token + "| Columns Won = " + sameChar);
+            }
+            if (sameChar == 1){
+                return new Object[] {true, token};
             }
         }
+        return new Object[] {false, "."};
     }
 
-    private void checkRows(String[][] board){
+    private Object[] checkRows(String[][] board){
         int sameChar = 0;
         for (int horizontal = 0; horizontal < board[0].length; horizontal++){
             String token = board[horizontal][0];
             if(token.equals(board[horizontal][1]) && token.equals(board[horizontal][2]) && !token.equals(" ")){
                 sameChar += 1;
-                System.out.println("Character = " + token + "| Rows Won = " + sameChar);
+            }
+            if(sameChar == 1){
+                return new Object[] {true, token};
             }
         }
+        return new Object[] {false, "."};
     }
 
-    private boolean checkDiagonals(String[][] board){
+    private Object[] checkDiagonals(String[][] board){
         String current = board[0][0];
         int leftCounter = 0;
         // left downward diagonal
@@ -106,6 +123,9 @@ class Logic {
             if (c.equals(current)){
                 leftCounter += 1;
             }
+        }
+        if (leftCounter == 3 && !current.equals(" ")){
+            return new Object[] {true, current};
         }
         // right upward diagonal
         int rightCounter = 0;
@@ -118,11 +138,25 @@ class Logic {
                 rightCounter += 1;
             }
         }
-        return leftCounter == 3 || rightCounter == 3;
+        if (rightCounter == 3 && !current.equals(" ")){
+            return new Object[] {true, current};
+        }
+        return new Object[] {false, "."};
     }
 
-    public void logic(String[][] gameBoard){
-        boolean[] checked = {false, false, false, false};
+    public Object[] performLogic(String[][] gameBoard){
+        // Order is Diagonal, Column, Row, Spaces
+        Object[][] checked = {{false, "."}, {false, "."}, {false, "."}, {false, "."}};
+        checked[0] = logic.checkDiagonals(gameBoard);
+        checked[1] = logic.checkColumns(gameBoard);
+        checked[2] = logic.checkRows(gameBoard);
+        checked[3] = logic.discoverPlaces(gameBoard);
+        for(int i = 0; i < 4; i++){
+            if((Boolean) checked[i][0]){
+                return checked[i];
+            }
+        }
+        return new Object[] {false, "."};
     }
 }
 
@@ -132,6 +166,7 @@ class Infrastructure {
     public static final Infrastructure inf = new Infrastructure();
 
     public int[] generateLocation(int move){
+        // hmmmmmmmmmmmmmmmmm .___.
         switch(move){
             case 0 -> {
                 return new int[] {0, 0};
