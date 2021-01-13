@@ -8,7 +8,8 @@ Also, there will be 2 versions of the game to play, one PvP the other PvE.
 I will add the PvE element later, but for now its just PvP.
 ^ this might take a while :p
 
-Things to still add:
+Things to still do:
+- Code cleanup
 - Possible game commands i.e. Ask the player if they want to play again .etc
 - Token customisation
 - PvE system
