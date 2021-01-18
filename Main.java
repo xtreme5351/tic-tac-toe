@@ -31,7 +31,7 @@ public class Main {
             place = "X";
             inverse = "O";
         }
-        int[] location = setup.generateLocation(ans);
+        int[] location = setup.generateLocation(board, ans);
         if(!game.validateSpace(board[location[0]][location[1]], place, inverse)){
             setup.printHeader("Space already taken, try again buddy");
             return game.inputUserMove(board, isPlayerOne);
@@ -86,29 +86,19 @@ class Logic {
         return new Object[] {false, "."};
     }
 
-    private Object[] checkColumns(String[][] board){
+    private Object[] checkXY(String[][] board){
         int sameChar = 0;
         for (int horizontal = 0; horizontal < board[0].length; horizontal++){
-            String token = board[0][horizontal];
-            if(token.equals(board[1][horizontal]) && token.equals(board[2][horizontal]) && !token.equals(" ")){
+            String columnToken = board[0][horizontal];
+            String verticalToken = board[horizontal][0];
+            if(columnToken.equals(board[1][horizontal]) && columnToken.equals(board[2][horizontal]) && !columnToken.equals(" ")){
+                sameChar += 1;
+            }
+            if(verticalToken.equals(board[horizontal][1]) && verticalToken.equals(board[horizontal][2]) && !verticalToken.equals(" ")){
                 sameChar += 1;
             }
             if (sameChar == 1){
-                return new Object[] {true, token};
-            }
-        }
-        return new Object[] {false, "."};
-    }
-
-    private Object[] checkRows(String[][] board){
-        int sameChar = 0;
-        for (int horizontal = 0; horizontal < board[0].length; horizontal++){
-            String token = board[horizontal][0];
-            if(token.equals(board[horizontal][1]) && token.equals(board[horizontal][2]) && !token.equals(" ")){
-                sameChar += 1;
-            }
-            if(sameChar == 1){
-                return new Object[] {true, token};
+                return new Object[] {true, columnToken};
             }
         }
         return new Object[] {false, "."};
@@ -146,12 +136,11 @@ class Logic {
 
     public Object[] performLogic(String[][] gameBoard){
         // Order is Diagonal, Column, Row, Spaces
-        Object[][] checked = {{false, "."}, {false, "."}, {false, "."}, {false, "."}};
+        Object[][] checked = {{false, "."}, {false, "."}, {false, "."}};
         checked[0] = logic.checkDiagonals(gameBoard);
-        checked[1] = logic.checkColumns(gameBoard);
-        checked[2] = logic.checkRows(gameBoard);
-        checked[3] = logic.discoverPlaces(gameBoard);
-        for(int i = 0; i < 4; i++){
+        checked[1] = logic.checkXY(gameBoard);
+        checked[2] = logic.discoverPlaces(gameBoard);
+        for(int i = 0; i < 3; i++){
             if((Boolean) checked[i][0]){
                 return checked[i];
             }
@@ -165,38 +154,13 @@ class Infrastructure {
     public static final Main game = new Main();
     public static final Infrastructure inf = new Infrastructure();
 
-    public int[] generateLocation(int move){
-        // hmmmmmmmmmmmmmmmmm .___.
-        switch(move){
-            case 0 -> {
-                return new int[] {0, 0};
-            }
-            case 1 -> {
-                return new int[] {0, 1};
-            }
-            case 2 -> {
-                return new int[] {0, 2};
-            }
-            case 3 -> {
-                return new int[] {1, 0};
-            }
-            case 4 -> {
-                return new int[] {1, 1};
-            }
-            case 5 -> {
-                return new int[] {1, 2};
-            }
-            case 6 -> {
-                return new int[] {2, 0};
-            }
-            case 7 -> {
-                return new int[] {2, 1};
-            }
-            case 8 -> {
-                return new int[] {2, 2};
-            }
-        }
-        return new int[] {-1, -1};
+    public int[] generateLocation(String[][] board, int move){
+        // ty dad :p
+        final int divisor = board.length;
+        int x = move / divisor;
+        int y = move % divisor;
+        // System.out.println(divisor+ "|" + x + "|" + y);
+        return new int[] {x, y};
     }
 
     public void printHeader(String str){
